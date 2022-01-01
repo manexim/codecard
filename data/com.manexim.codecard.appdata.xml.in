@@ -16,6 +16,23 @@
       <binary>com.manexim.codecard</binary>
   </provides>
   ​<releases>
+    <release date="2022-01-01" version="1.0.2">
+      <description>
+        <p>New:</p>
+        <ul>
+        </ul>
+        <p>Improved:</p>
+        <ul>
+        </ul>
+        <p>Fixed:</p>
+        <ul>
+          <li>Add stripe key</li>
+        </ul>
+        <p>Translations:</p>
+        <ul>
+        </ul>
+      </description>
+    </release>
     <release date="2022-01-01" version="1.0.1">
       <description>
         <p>New:</p>
