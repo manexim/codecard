@@ -30,7 +30,7 @@ public class Views.CodecardView : Gtk.ScrolledWindow {
         font = Application.instance.font;
 
         expand = true;
-        
+
         get_style_context ().add_class (Gtk.STYLE_CLASS_VIEW);
 
         editor = new Gtk.SourceView.with_buffer (model.buffer) {
