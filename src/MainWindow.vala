@@ -329,7 +329,9 @@ public class MainWindow : Hdy.Window {
                     show_error_dialog (e.message);
                 }
 
-                overlay.show_toast (_("Saved to %s and copied to clipboard").printf (Utils.replace_home_with_tilde (path)));
+                overlay.show_toast (
+                    _("Saved to %s and copied to clipboard").printf (Utils.replace_home_with_tilde (path))
+                );
 
                 saving = false;
             }
