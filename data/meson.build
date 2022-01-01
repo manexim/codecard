@@ -33,3 +33,8 @@ install_data(
     meson.project_name() + '.gschema.xml',
     install_dir: join_paths(get_option('datadir'), 'glib-2.0', 'schemas')
 )
+
+install_data([
+  'styles/elementary-dark.xml',
+  'styles/elementary-light.xml',
+], install_dir: join_paths(get_option('datadir'), 'gtksourceview-4', 'styles'))
