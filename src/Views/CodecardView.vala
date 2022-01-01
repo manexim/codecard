@@ -23,6 +23,11 @@ public class Views.CodecardView : Gtk.ScrolledWindow {
     private Models.Codecard model;
     private Models.Font font;
 
+    private const string STYLE_SCHEME_HIGH_CONTRAST = "classic";
+    private const string STYLE_SCHEME_LIGHT = "elementary-light";
+    private const string STYLE_SCHEME_DARK = "elementary-dark";
+
+    public Gtk.SourceStyleSchemeManager style_scheme_manager;
     public Gtk.SourceView editor;
 
     public CodecardView (Models.Codecard model) {
@@ -30,7 +35,8 @@ public class Views.CodecardView : Gtk.ScrolledWindow {
         font = Application.instance.font;
 
         expand = true;
-        
+        style_scheme_manager = new Gtk.SourceStyleSchemeManager ();
+
         get_style_context ().add_class (Gtk.STYLE_CLASS_VIEW);
 
         editor = new Gtk.SourceView.with_buffer (model.buffer) {
@@ -47,5 +53,42 @@ public class Views.CodecardView : Gtk.ScrolledWindow {
         font.notify.connect (() => {
             editor.override_font (Pango.FontDescription.from_string (font.font));
         });
+
+        Granite.Settings.get_default ().notify["prefers-color-scheme"].connect (() => {
+            update_style_scheme ();
+        });
+
+        update_style_scheme ();
+    }
+
+    private void update_style_scheme () {
+        var prefers_dark = Granite.Settings.get_default ().prefers_color_scheme == Granite.Settings.ColorScheme.DARK;
+        var scheme_name = prefers_dark ? STYLE_SCHEME_DARK : STYLE_SCHEME_LIGHT;
+        var scheme = style_scheme_manager.get_scheme (scheme_name);
+        model.buffer.style_scheme = scheme ?? style_scheme_manager.get_scheme (STYLE_SCHEME_HIGH_CONTRAST);
+
+        string background = "#FFF";
+        var text_style = scheme.get_style ("text");
+
+        if (text_style != null && text_style.background_set && !("rgba" in text_style.background)) {
+            background = text_style.background;
+        }
+
+        var style_css = """
+            scrolledwindow {
+                background-color: %s;
+            }
+        """.printf (background);
+
+        var css_provider = new Gtk.CssProvider ();
+
+        try {
+            css_provider.load_from_data (style_css);
+        } catch (Error e) {
+            critical ("Unable to style background: %s", e.message);
+        }
+
+        unowned var style_context = get_style_context ();
+        style_context.add_provider (css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
 }
