@@ -1,4 +1,4 @@
-project('com.manexim.codecard', 'vala', 'c', version: '1.0.1')
+project('com.manexim.codecard', 'vala', 'c', version: '1.0.2')
 
 # Include the translations module
 i18n = import('i18n')
