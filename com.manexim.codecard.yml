@@ -17,7 +17,7 @@ modules:
     sources:
       - type: git
         url: https://gitlab.gnome.org/GNOME/gtksourceview.git
-        tag: '4.8.1'
+        tag: '4.8.0'
 
   - name: codecard
     buildsystem: meson
