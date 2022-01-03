@@ -12,6 +12,8 @@ sources = [
     'Controllers/CodecardController.vala',
     'Models/Font.vala',
     'Models/Codecard.vala',
+    'Portals/Request.vala',
+    'Portals/Screenshot.vala',
     'Services/Settings.vala',
     'Views/CodecardView.vala',
     'Widgets/Overlay.vala',
