@@ -84,6 +84,7 @@ public class MainWindow : Hdy.Window {
         insert_action_group ("win", actions);
 
         set_application (app);
+        set_title (Constants.APP_NAME);
 
         foreach (var action in action_accelerators.get_keys ()) {
             var accels_array = action_accelerators[action].to_array ();
