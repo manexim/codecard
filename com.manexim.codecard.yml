@@ -9,8 +9,6 @@ finish-args:
   - '--socket=wayland'
 
   - '--filesystem=xdg-pictures'
-
-  - '--talk-name=org.gnome.Shell.Screenshot'
 modules:
   - name: gtksourceview
     buildsystem: meson
