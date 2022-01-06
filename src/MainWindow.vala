@@ -25,6 +25,7 @@ public class MainWindow : Hdy.Window {
     private Controllers.CodecardController codecard;
     private Gtk.ComboBoxText languages_combo;
     private Widgets.Overlay overlay;
+    private Xdp.Portal portal;
 
     private bool saving = false;
 
@@ -77,6 +78,8 @@ public class MainWindow : Hdy.Window {
 
     construct {
         Hdy.init ();
+
+        portal = new Xdp.Portal ();
 
         actions = new SimpleActionGroup ();
         actions.add_action_entries (ACTION_ENTRIES, this);
@@ -277,12 +280,6 @@ public class MainWindow : Hdy.Window {
 
         saving = true;
 
-        action_save_async.begin ((obj, res) => {
-            action_save_async.end (res);
-        });
-    }
-
-    private async void action_save_async () {
         overlay.hide_toast ();
         codecard.view.editor.cursor_visible = false;
         codecard.view.editor.editable = false;
@@ -291,80 +288,48 @@ public class MainWindow : Hdy.Window {
         language_revealer.reveal_child = false;
         menu_revealer.reveal_child = false;
 
-        var capture_mode = Screenshot.CaptureType.CURRENT_WINDOW;
-        int delay = 0;
-        var mouse_pointer = false;
-        var redact = false;
+        var parent_window = Xdp.ParentWindow.new_gtk (this);
+        portal.take_screenshot.begin (parent_window, Xdp.ScreenshotFlags.NONE, null, (obj, res) => {
+            codecard.view.editor.cursor_visible = true;
+            codecard.view.editor.editable = true;
+            save_revealer.reveal_child = true;
+            headerbar.title = Constants.APP_NAME;
+            language_revealer.reveal_child = true;
+            menu_revealer.reveal_child = true;
 
-        try {
-            var bus = yield Bus.get(BusType.SESSION);
-            var screenshot = yield bus.get_proxy<org.freedesktop.portal.Screenshot>("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop");
+            saving = false;
 
-            var options = new HashTable<string, Variant>(str_hash, str_equal);
-            var handle = screenshot.screenshot("", options);
-            var request = yield bus.get_proxy<org.freedesktop.portal.Request>("org.freedesktop.portal.Desktop", handle);
-            request.response.connect ((response, results) => {
-                if (response != 0) {
-                    warning ("Insert screenshot cancelled.");
-                } else {
-                    var uri = results.@get("uri").get_string ();
-                    warning (@"Insert screenshot with uri $uri.");
-                    //  var file = GLib.File.new_for_uri (uri);
-                    //  try {
-                    //      filetransfer_listener.on_start_filetransfer(contact, file);
-                    //  } catch (Error e) {
-                    //      logger.e("Can not start file transfer: " + e.message);
-                    //  }
+            try {
+                var uri = portal.take_screenshot.end (res);
+
+                var file = File.new_for_uri (uri);
+
+                var date_time = new GLib.DateTime.now_local ().format ("%Y-%m-%d %H.%M.%S");
+
+                string file_name = "Codecard from %s.png".printf (date_time);
+
+                var path = Path.build_filename (
+                    Environment.get_user_special_dir (UserDirectory.PICTURES),
+                    Constants.APP_NAME
+                );
+
+                DirUtils.create_with_parents (path, 0755);
+
+                path = Path.build_filename (path, file_name);
+                if (FileUtils.rename (file.get_path (), path) != 0) {
+                    throw new Error (0, 0, "Could not create file");
                 }
-                action_save_async.callback();
-            });
-        } catch (Error e) {
-            warning ("Can not take screenshot: %s", e.message);
-        }
 
-        //  backend.capture.begin (capture_mode, delay, mouse_pointer, redact, (obj, res) => {
-        //      Gdk.Pixbuf? pixbuf = null;
-        //      try {
-        //          pixbuf = backend.capture.end (res);
-        //      } catch (Error e) {
-        //          show_error_dialog (e.message);
-        //      }
+                var pixbuf = new Gdk.Pixbuf.from_file (path);
+                Gtk.Clipboard.get_default (this.get_display ()).set_image (pixbuf);
 
-        //      codecard.view.editor.cursor_visible = true;
-        //      codecard.view.editor.editable = true;
-        //      save_revealer.reveal_child = true;
-        //      headerbar.title = Constants.APP_NAME;
-        //      language_revealer.reveal_child = true;
-        //      menu_revealer.reveal_child = true;
-
-        //      if (pixbuf != null) {
-        //          Gtk.Clipboard.get_default (this.get_display ()).set_image (pixbuf);
-
-        //          var date_time = new GLib.DateTime.now_local ().format ("%Y-%m-%d %H.%M.%S");
-
-        //          string file_name = "Codecard from %s.png".printf (date_time);
-
-        //          var path = Path.build_filename (
-        //              Environment.get_user_special_dir (UserDirectory.PICTURES),
-        //              Constants.APP_NAME
-        //          );
-
-        //          DirUtils.create_with_parents (path, 0755);
-
-        //          path = Path.build_filename (path, file_name);
-        //          try {
-        //              pixbuf.save (path, "png");
-        //          } catch (Error e) {
-        //              show_error_dialog (e.message);
-        //          }
-
-        //          overlay.show_toast (
-        //              _("Saved to %s and copied to clipboard").printf (Utils.replace_home_with_tilde (path))
-        //          );
-
-        //          saving = false;
-        //      }
-        //  });
+                overlay.show_toast (
+                    _("Saved to %s and copied to clipboard").printf (Utils.replace_home_with_tilde (path))
+                );
+            } catch (Error e) {
+                show_error_dialog (e.message);
+            }
+        });
     }
 
     private void action_quit () {
