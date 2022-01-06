@@ -289,7 +289,7 @@ public class MainWindow : Hdy.Window {
         menu_revealer.reveal_child = false;
 
         var parent_window = Xdp.ParentWindow.new_gtk (this);
-        portal.take_screenshot.begin (parent_window, Xdp.ScreenshotFlags.NONE, null, (obj, res) => {
+        portal.take_screenshot.begin (parent_window, Xdp.ScreenshotFlags.INTERACTIVE, null, (obj, res) => {
             codecard.view.editor.cursor_visible = true;
             codecard.view.editor.editable = true;
             save_revealer.reveal_child = true;
