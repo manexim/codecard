@@ -27,4 +27,11 @@ namespace Utils {
             return path;
         }
     }
+
+    public string get_codecard_folder () {
+        return Path.build_filename (
+            Environment.get_user_special_dir (UserDirectory.PICTURES),
+            Constants.APP_NAME
+        );
+    }
 }
