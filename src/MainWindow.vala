@@ -312,10 +312,7 @@ public class MainWindow : Hdy.Window {
 
                 string file_name = "Codecard from %s.png".printf (date_time);
 
-                var path = Path.build_filename (
-                    Environment.get_user_special_dir (UserDirectory.PICTURES),
-                    Constants.APP_NAME
-                );
+                var path = Utils.get_codecard_folder ();
 
                 DirUtils.create_with_parents (path, 0755);
 
@@ -328,6 +325,7 @@ public class MainWindow : Hdy.Window {
 
                 var notification = new Notification (title);
                 notification.set_body (_("Saved to %s and copied to clipboard").printf (Utils.replace_home_with_tilde (path)));
+                notification.set_default_action ("app.show-codecard-folder");
                 app.send_notification (Constants.APP_ID, notification);
 
                 saving = false;
