@@ -6,4 +6,4 @@ Comment=Share snippets of code as a pretty image, e.g. for social media.
 Exec=com.manexim.codecard
 Icon=com.manexim.codecard
 Categories=Development;GTK;
-X-GNOME-UsesNotifications=false
+X-GNOME-UsesNotifications=true
