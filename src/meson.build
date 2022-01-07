@@ -14,7 +14,6 @@ sources = [
     'Models/Codecard.vala',
     'Services/Settings.vala',
     'Views/CodecardView.vala',
-    'Widgets/Overlay.vala',
     'CaptureType.vala',
     'ScreenshotBackend.vala',
     'ScreenshotProxy.vala',

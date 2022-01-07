@@ -25,7 +25,6 @@ public class MainWindow : Hdy.Window {
     private Controllers.CodecardController codecard;
     private Screenshot.ScreenshotBackend backend;
     private Gtk.ComboBoxText languages_combo;
-    private Widgets.Overlay overlay;
 
     private bool saving = false;
 
@@ -207,12 +206,9 @@ public class MainWindow : Hdy.Window {
         headerbar.pack_end (menu_revealer);
         headerbar.pack_end (language_revealer);
 
-        overlay = Widgets.Overlay.instance;
-        overlay.add (codecard.view);
-
         var main_layout = new Gtk.Grid ();
         main_layout.attach (headerbar, 0, 0);
-        main_layout.attach (overlay, 0, 1);
+        main_layout.attach (codecard.view, 0, 1);
 
         add (main_layout);
 
@@ -282,7 +278,6 @@ public class MainWindow : Hdy.Window {
 
         saving = true;
 
-        overlay.hide_toast ();
         codecard.view.editor.cursor_visible = false;
         codecard.view.editor.editable = false;
         save_revealer.reveal_child = false;
@@ -331,9 +326,9 @@ public class MainWindow : Hdy.Window {
                     show_error_dialog (e.message);
                 }
 
-                overlay.show_toast (
-                    _("Saved to %s and copied to clipboard").printf (Utils.replace_home_with_tilde (path))
-                );
+                var notification = new Notification (title);
+                notification.set_body (_("Saved to %s and copied to clipboard").printf (Utils.replace_home_with_tilde (path)));
+                app.send_notification (Constants.APP_ID, notification);
 
                 saving = false;
             }
