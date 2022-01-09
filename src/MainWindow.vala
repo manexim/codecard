@@ -24,7 +24,6 @@ public class MainWindow : Hdy.Window {
     private Hdy.HeaderBar headerbar;
     private Controllers.CodecardController codecard;
     private Gtk.ComboBoxText languages_combo;
-    private Widgets.Overlay overlay;
     private Xdp.Portal portal;
 
     private bool saving = false;
@@ -86,6 +85,7 @@ public class MainWindow : Hdy.Window {
         insert_action_group ("win", actions);
 
         set_application (app);
+        set_title (Constants.APP_NAME);
 
         foreach (var action in action_accelerators.get_keys ()) {
             var accels_array = action_accelerators[action].to_array ();
@@ -205,12 +205,9 @@ public class MainWindow : Hdy.Window {
         headerbar.pack_end (menu_revealer);
         headerbar.pack_end (language_revealer);
 
-        overlay = Widgets.Overlay.instance;
-        overlay.add (codecard.view);
-
         var main_layout = new Gtk.Grid ();
         main_layout.attach (headerbar, 0, 0);
-        main_layout.attach (overlay, 0, 1);
+        main_layout.attach (codecard.view, 0, 1);
 
         add (main_layout);
 
@@ -280,7 +277,6 @@ public class MainWindow : Hdy.Window {
 
         saving = true;
 
-        overlay.hide_toast ();
         codecard.view.editor.cursor_visible = false;
         codecard.view.editor.editable = false;
         save_revealer.reveal_child = false;
@@ -308,10 +304,7 @@ public class MainWindow : Hdy.Window {
 
                 string file_name = "Codecard from %s.png".printf (date_time);
 
-                var path = Path.build_filename (
-                    Environment.get_user_special_dir (UserDirectory.PICTURES),
-                    Constants.APP_NAME
-                );
+                var path = Utils.get_codecard_folder ();
 
                 DirUtils.create_with_parents (path, 0755);
 
@@ -323,9 +316,12 @@ public class MainWindow : Hdy.Window {
                 var pixbuf = new Gdk.Pixbuf.from_file (path);
                 Gtk.Clipboard.get_default (this.get_display ()).set_image (pixbuf);
 
-                overlay.show_toast (
-                    _("Saved to %s and copied to clipboard").printf (Utils.replace_home_with_tilde (path))
-                );
+                var notification = new Notification (title);
+                notification.set_body (_("Saved to %s and copied to clipboard").printf (Utils.replace_home_with_tilde (path)));
+                notification.set_default_action ("app.show-codecard-folder");
+                app.send_notification (Constants.APP_ID, notification);
+
+                saving = false;
             } catch (Error e) {
                 show_error_dialog (e.message);
             }

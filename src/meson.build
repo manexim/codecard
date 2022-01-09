@@ -14,7 +14,6 @@ sources = [
     'Models/Codecard.vala',
     'Services/Settings.vala',
     'Views/CodecardView.vala',
-    'Widgets/Overlay.vala',
     'Utils.vala',
     'MainWindow.vala',
 ]

@@ -55,6 +55,20 @@ public class Application : Gtk.Application {
         settings.notify["zoom"].connect (() => {
             font.size = (int) (_default_font.size * settings.zoom / 100.0);
         });
+
+        var show_codecard_folder = new SimpleAction ("show-codecard-folder", null);
+        show_codecard_folder.activate.connect (() => {
+            var uri = "file://" + Utils.get_codecard_folder ();
+            AppInfo.launch_default_for_uri_async.begin (uri, null, null, (obj, res) => {
+                try {
+                    AppInfo.launch_default_for_uri_async.end (res);
+                } catch (Error e) {
+                    critical (e.message);
+                }
+            });
+        });
+
+        add_action (show_codecard_folder);
     }
 
     public Models.Font font {
