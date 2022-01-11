@@ -269,15 +269,16 @@ public class MainWindow : Hdy.Window {
                 if (pixbuf != null) {
                     double margin = codecard.view.editor_margin;
                     const double BORDER_RADIUS = 6.0;
+                    double padding = (margin * 16);
 
-                    var surface = new Granite.Drawing.BufferSurface ((int) (width + margin * 4), (int) (height + margin * 4));
+                    var surface = new Granite.Drawing.BufferSurface ((int) (width + padding), (int) (height + padding));
                     var context = surface.context;
                     var view_surface = Gdk.cairo_surface_create_from_pixbuf (pixbuf, 1, null);
 
-                    double w = width + margin * 2;
-                    double h = height + margin * 2;
-                    double x = margin;
-                    double y = margin;
+                    double w = width + padding / 2;
+                    double h = height + padding / 2;
+                    double x = padding / 4;
+                    double y = padding / 4;
 
                     context.set_source_rgba (0, 0, 0, 0.5);
                     Granite.Drawing.Utilities.cairo_rounded_rectangle (context, x, y, w, h, BORDER_RADIUS);
@@ -292,7 +293,7 @@ public class MainWindow : Hdy.Window {
                     context.fill ();
 
                     context.set_operator (Cairo.Operator.OVER);
-                    context.set_source_surface (view_surface, margin * 2, margin * 2);
+                    context.set_source_surface (view_surface, padding / 2, padding / 2);
                     context.paint ();
 
                     var date_time = new GLib.DateTime.now_local ().format ("%Y-%m-%d %H.%M.%S");
