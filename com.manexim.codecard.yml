@@ -23,13 +23,6 @@ modules:
         url: https://gitlab.gnome.org/GNOME/gtksourceview.git
         tag: '4.8.0'
 
-  - name: libportal
-    buildsystem: meson
-    sources:
-    - type: git
-      url: https://github.com/flatpak/libportal.git
-      branch: '0.4'
-
   - name: codecard
     buildsystem: meson
     sources:
