@@ -270,8 +270,8 @@ public class MainWindow : Hdy.Window {
                     double margin = codecard.view.editor_margin;
                     const double BORDER_RADIUS = 6.0;
 
-                    var surface = new Cairo.ImageSurface (Cairo.Format.ARGB32, (int) (width + margin * 4), (int) (height + margin * 4));
-                    var context = new Cairo.Context (surface);
+                    var surface = new Granite.Drawing.BufferSurface ((int) (width + margin * 4), (int) (height + margin * 4));
+                    var context = surface.context;
                     var view_surface = Gdk.cairo_surface_create_from_pixbuf (pixbuf, 1, null);
 
                     var background_color = Gdk.RGBA ();
@@ -284,14 +284,7 @@ public class MainWindow : Hdy.Window {
                     double x = margin;
                     double y = margin;
 
-                    double degrees = Math.PI / 180.0;
-
-                    context.new_sub_path ();
-                    context.arc (x + w - BORDER_RADIUS, y + BORDER_RADIUS, BORDER_RADIUS, -90 * degrees, 0 * degrees);
-                    context.arc (x + w - BORDER_RADIUS, y + h - BORDER_RADIUS, BORDER_RADIUS, 0 * degrees, 90 * degrees);
-                    context.arc (x + BORDER_RADIUS, y + h - BORDER_RADIUS, BORDER_RADIUS, 90 * degrees, 180 * degrees);
-                    context.arc (x + BORDER_RADIUS, y + BORDER_RADIUS, BORDER_RADIUS, 180 * degrees, 270 * degrees);
-                    context.close_path ();
+                    Granite.Drawing.Utilities.cairo_rounded_rectangle (context, x, y, w, h, BORDER_RADIUS);
 
                     context.fill ();
 
@@ -308,12 +301,12 @@ public class MainWindow : Hdy.Window {
 
                     path = Path.build_filename (path, file_name);
 
-                    if (surface.write_to_png (path) != Cairo.Status.SUCCESS) {
+                    var export_pixbuf = surface.load_to_pixbuf ();
+                    if (!export_pixbuf.save (path, "png")) {
                         throw new FileError.FAILED ("");
                     }
 
-                    var exported_pixbuf = new Gdk.Pixbuf.from_file (path);
-                    Gtk.Clipboard.get_default (get_display ()).set_image (exported_pixbuf);
+                    Gtk.Clipboard.get_default (get_display ()).set_image (export_pixbuf);
 
                     var notification = new Notification (title);
                     notification.set_body (_("Saved to %s and copied to clipboard").printf (Utils.replace_home_with_tilde (path)));
