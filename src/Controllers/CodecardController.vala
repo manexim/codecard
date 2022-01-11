@@ -38,19 +38,12 @@ public class Controllers.CodecardController {
 
     public void save () {
         if (settings.autosave) {
-            var file = new Gtk.SourceFile ();
-
             try {
                 if (!model.directory.query_exists ()) {
                     model.directory.make_directory_with_parents ();
                 }
-                file.location = model.file;
 
-                if (file != null && !file.is_readonly ()) {
-
-                    var file_saver = new Gtk.SourceFileSaver (model.buffer as Gtk.SourceBuffer, file);
-                    file_saver.save_async.begin (Priority.DEFAULT, null, null);
-                }
+                FileUtils.set_contents (model.file.get_path (), model.buffer.text);
             } catch (Error e) {
                 stderr.printf ("Could not autosave: %s\n", e.message);
             }

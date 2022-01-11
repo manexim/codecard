@@ -23,12 +23,14 @@ public class Views.CodecardView : Gtk.ScrolledWindow {
     private Models.Codecard model;
     private Models.Font font;
 
-    private const string STYLE_SCHEME_HIGH_CONTRAST = "classic";
+    public Gtk.SourceStyleSchemeManager style_scheme_manager;
+    public Gtk.SourceView editor;
+
     private const string STYLE_SCHEME_LIGHT = "elementary-light";
     private const string STYLE_SCHEME_DARK = "elementary-dark";
 
-    public Gtk.SourceStyleSchemeManager style_scheme_manager;
-    public Gtk.SourceView editor;
+    public string background_color { get; private set; }
+    public int editor_margin { get; default = 12; }
 
     public CodecardView (Models.Codecard model) {
         this.model = model;
@@ -41,7 +43,7 @@ public class Views.CodecardView : Gtk.ScrolledWindow {
 
         editor = new Gtk.SourceView.with_buffer (model.buffer) {
             wrap_mode = Gtk.WrapMode.WORD,
-            margin = 40
+            margin = editor_margin
         };
         add (editor);
 
@@ -65,13 +67,15 @@ public class Views.CodecardView : Gtk.ScrolledWindow {
         var prefers_dark = Granite.Settings.get_default ().prefers_color_scheme == Granite.Settings.ColorScheme.DARK;
         var scheme_name = prefers_dark ? STYLE_SCHEME_DARK : STYLE_SCHEME_LIGHT;
         var scheme = style_scheme_manager.get_scheme (scheme_name);
-        model.buffer.style_scheme = scheme ?? style_scheme_manager.get_scheme (STYLE_SCHEME_HIGH_CONTRAST);
+        model.buffer.style_scheme = scheme;
 
         string background = "#FFF";
         var text_style = scheme.get_style ("text");
 
         if (text_style != null && text_style.background_set && !("rgba" in text_style.background)) {
             background = text_style.background;
+
+            background_color = background;
         }
 
         var style_css = """

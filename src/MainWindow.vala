@@ -23,15 +23,9 @@ public class MainWindow : Hdy.Window {
     private Services.Settings settings;
     private Hdy.HeaderBar headerbar;
     private Controllers.CodecardController codecard;
-    private Screenshot.ScreenshotBackend backend;
     private Gtk.ComboBoxText languages_combo;
-    private Widgets.Overlay overlay;
 
     private bool saving = false;
-
-    private Gtk.Revealer save_revealer;
-    private Gtk.Revealer language_revealer;
-    private Gtk.Revealer menu_revealer;
 
     public Application app { get; construct; }
 
@@ -84,6 +78,7 @@ public class MainWindow : Hdy.Window {
         insert_action_group ("win", actions);
 
         set_application (app);
+        set_title (Constants.APP_NAME);
 
         foreach (var action in action_accelerators.get_keys ()) {
             var accels_array = action_accelerators[action].to_array ();
@@ -94,8 +89,6 @@ public class MainWindow : Hdy.Window {
 
         settings = Services.Settings.get_default ();
         load_settings ();
-
-        backend = new Screenshot.ScreenshotBackend ();
 
         codecard = new Controllers.CodecardController ();
 
@@ -113,12 +106,7 @@ public class MainWindow : Hdy.Window {
             )
         };
 
-        save_revealer = new Gtk.Revealer ();
-        save_revealer.reveal_child = true;
-        save_revealer.transition_type = Gtk.RevealerTransitionType.NONE;
-        save_revealer.add (save_button);
-
-        headerbar.pack_start (save_revealer);
+        headerbar.pack_start (save_button);
 
         languages_combo = new Gtk.ComboBoxText () {
             tooltip_text = _("Language")
@@ -136,11 +124,6 @@ public class MainWindow : Hdy.Window {
         languages_combo.append ("python3", "Python");
         languages_combo.append ("vala", "Vala");
         languages_combo.active_id = settings.language;
-
-        language_revealer = new Gtk.Revealer ();
-        language_revealer.reveal_child = true;
-        language_revealer.transition_type = Gtk.RevealerTransitionType.NONE;
-        language_revealer.add (languages_combo);
 
         var zoom_out_button = new Gtk.Button.from_icon_name ("zoom-out-symbolic", Gtk.IconSize.MENU) {
             action_name = ACTION_PREFIX + ACTION_ZOOM_OUT_FONT,
@@ -197,20 +180,12 @@ public class MainWindow : Hdy.Window {
             popover = menu
         };
 
-        menu_revealer = new Gtk.Revealer ();
-        menu_revealer.reveal_child = true;
-        menu_revealer.transition_type = Gtk.RevealerTransitionType.NONE;
-        menu_revealer.add (app_menu);
-
-        headerbar.pack_end (menu_revealer);
-        headerbar.pack_end (language_revealer);
-
-        overlay = Widgets.Overlay.instance;
-        overlay.add (codecard.view);
+        headerbar.pack_end (app_menu);
+        headerbar.pack_end (languages_combo);
 
         var main_layout = new Gtk.Grid ();
         main_layout.attach (headerbar, 0, 0);
-        main_layout.attach (overlay, 0, 1);
+        main_layout.attach (codecard.view, 0, 1);
 
         add (main_layout);
 
@@ -280,61 +255,80 @@ public class MainWindow : Hdy.Window {
 
         saving = true;
 
-        overlay.hide_toast ();
         codecard.view.editor.cursor_visible = false;
         codecard.view.editor.editable = false;
-        save_revealer.reveal_child = false;
-        headerbar.title = "";
-        language_revealer.reveal_child = false;
-        menu_revealer.reveal_child = false;
 
-        var capture_mode = Screenshot.CaptureType.CURRENT_WINDOW;
-        int delay = 0;
-        var mouse_pointer = false;
-        var redact = false;
+        Timeout.add_seconds (1, () => {
+            var window = codecard.view.editor.get_window (Gtk.TextWindowType.WIDGET);
+            int width = window.get_width ();
+            int height = window.get_height ();
 
-        backend.capture.begin (capture_mode, delay, mouse_pointer, redact, (obj, res) => {
-            Gdk.Pixbuf? pixbuf = null;
             try {
-                pixbuf = backend.capture.end (res);
+                var pixbuf = Gdk.pixbuf_get_from_window (window, 0, 0, width, height);
+
+                if (pixbuf != null) {
+                    double margin = codecard.view.editor_margin;
+                    const double BORDER_RADIUS = 6.0;
+                    double padding = (margin * 16);
+
+                    var surface = new Granite.Drawing.BufferSurface ((int) (width + padding), (int) (height + padding));
+                    var context = surface.context;
+                    var view_surface = Gdk.cairo_surface_create_from_pixbuf (pixbuf, 1, null);
+
+                    double w = width + padding / 2;
+                    double h = height + padding / 2;
+                    double x = padding / 4;
+                    double y = padding / 4;
+
+                    context.set_source_rgba (0, 0, 0, 0.5);
+                    Granite.Drawing.Utilities.cairo_rounded_rectangle (context, x, y, w, h, BORDER_RADIUS);
+                    context.fill ();
+                    surface.gaussian_blur ((int) BORDER_RADIUS * 2);
+
+                    var background_color = Gdk.RGBA ();
+                    background_color.parse (codecard.view.background_color);
+
+                    context.set_source_rgba (background_color.red, background_color.green, background_color.blue, 1);
+                    Granite.Drawing.Utilities.cairo_rounded_rectangle (context, x, y, w, h, BORDER_RADIUS);
+                    context.fill ();
+
+                    context.set_operator (Cairo.Operator.OVER);
+                    context.set_source_surface (view_surface, padding / 2, padding / 2);
+                    context.paint ();
+
+                    var date_time = new GLib.DateTime.now_local ().format ("%Y-%m-%d %H.%M.%S");
+                    string file_name = "Codecard from %s.png".printf (date_time);
+                    var path = Utils.get_codecard_folder ();
+                    if (DirUtils.create_with_parents (path, 0755) != 0) {
+                        throw new FileError.FAILED ("");
+                    }
+
+                    path = Path.build_filename (path, file_name);
+
+                    var export_pixbuf = surface.load_to_pixbuf ();
+                    if (!export_pixbuf.save (path, "png")) {
+                        throw new FileError.FAILED ("");
+                    }
+
+                    Gtk.Clipboard.get_default (get_display ()).set_image (export_pixbuf);
+
+                    var notification = new Notification (title);
+                    notification.set_body (_("Saved to %s and copied to clipboard").printf (Utils.replace_home_with_tilde (path)));
+                    notification.set_default_action ("app.show-codecard-folder");
+                    app.send_notification (Constants.APP_ID, notification);
+                } else {
+                    throw new FileError.FAILED ("");
+                }
             } catch (Error e) {
-                show_error_dialog (e.message);
+                show_error_dialog ("Could not save Codecard");
             }
 
             codecard.view.editor.cursor_visible = true;
             codecard.view.editor.editable = true;
-            save_revealer.reveal_child = true;
-            headerbar.title = Constants.APP_NAME;
-            language_revealer.reveal_child = true;
-            menu_revealer.reveal_child = true;
 
-            if (pixbuf != null) {
-                Gtk.Clipboard.get_default (this.get_display ()).set_image (pixbuf);
+            saving = false;
 
-                var date_time = new GLib.DateTime.now_local ().format ("%Y-%m-%d %H.%M.%S");
-
-                string file_name = "Codecard from %s.png".printf (date_time);
-
-                var path = Path.build_filename (
-                    Environment.get_user_special_dir (UserDirectory.PICTURES),
-                    Constants.APP_NAME
-                );
-
-                DirUtils.create_with_parents (path, 0755);
-
-                path = Path.build_filename (path, file_name);
-                try {
-                    pixbuf.save (path, "png");
-                } catch (Error e) {
-                    show_error_dialog (e.message);
-                }
-
-                overlay.show_toast (
-                    _("Saved to %s and copied to clipboard").printf (Utils.replace_home_with_tilde (path))
-                );
-
-                saving = false;
-            }
+            return Source.REMOVE;
         });
     }
 

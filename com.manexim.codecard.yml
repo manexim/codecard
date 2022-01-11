@@ -9,8 +9,12 @@ finish-args:
   - '--socket=wayland'
 
   - '--filesystem=xdg-pictures'
-
-  - '--talk-name=org.gnome.Shell.Screenshot'
+cleanup:
+  - '/include'
+  - '/lib/pkgconfig'
+  - '/share/vala'
+  - '*.a'
+  - '*.la'
 modules:
   - name: gtksourceview
     buildsystem: meson
