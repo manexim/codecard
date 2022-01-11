@@ -268,7 +268,7 @@ public class MainWindow : Hdy.Window {
 
                 if (pixbuf != null) {
                     double margin = codecard.view.editor_margin;
-                    const double BORDER_RADIUS = 8.0;
+                    const double BORDER_RADIUS = 6.0;
 
                     var surface = new Cairo.ImageSurface (Cairo.Format.ARGB32, (int) (width + margin * 4), (int) (height + margin * 4));
                     var context = new Cairo.Context (surface);

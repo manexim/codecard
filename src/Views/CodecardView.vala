@@ -30,7 +30,7 @@ public class Views.CodecardView : Gtk.ScrolledWindow {
     private const string STYLE_SCHEME_DARK = "solarized-dark";
 
     public string background_color { get; private set; }
-    public int editor_margin { get; default = 16; }
+    public int editor_margin { get; default = 12; }
 
     public CodecardView (Models.Codecard model) {
         this.model = model;
