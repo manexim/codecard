@@ -274,18 +274,21 @@ public class MainWindow : Hdy.Window {
                     var context = surface.context;
                     var view_surface = Gdk.cairo_surface_create_from_pixbuf (pixbuf, 1, null);
 
-                    var background_color = Gdk.RGBA ();
-                    background_color.parse (codecard.view.background_color);
-
-                    context.set_source_rgba (background_color.red, background_color.green, background_color.blue, 1);
-
                     double w = width + margin * 2;
                     double h = height + margin * 2;
                     double x = margin;
                     double y = margin;
 
+                    context.set_source_rgba (0, 0, 0, 0.5);
                     Granite.Drawing.Utilities.cairo_rounded_rectangle (context, x, y, w, h, BORDER_RADIUS);
+                    context.fill ();
+                    surface.gaussian_blur ((int) BORDER_RADIUS * 2);
 
+                    var background_color = Gdk.RGBA ();
+                    background_color.parse (codecard.view.background_color);
+
+                    context.set_source_rgba (background_color.red, background_color.green, background_color.blue, 1);
+                    Granite.Drawing.Utilities.cairo_rounded_rectangle (context, x, y, w, h, BORDER_RADIUS);
                     context.fill ();
 
                     context.set_operator (Cairo.Operator.OVER);
