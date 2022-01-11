@@ -267,10 +267,10 @@ public class MainWindow : Hdy.Window {
                 var pixbuf = Gdk.pixbuf_get_from_window (window, 0, 0, width, height);
 
                 if (pixbuf != null) {
-                    double MARGIN = codecard.view.editor_margin;
+                    double margin = codecard.view.editor_margin;
                     const double BORDER_RADIUS = 8.0;
 
-                    var surface = new Cairo.ImageSurface (Cairo.Format.ARGB32, (int) (width + MARGIN * 4), (int) (height + MARGIN * 4));
+                    var surface = new Cairo.ImageSurface (Cairo.Format.ARGB32, (int) (width + margin * 4), (int) (height + margin * 4));
                     var context = new Cairo.Context (surface);
                     var view_surface = Gdk.cairo_surface_create_from_pixbuf (pixbuf, 1, null);
 
@@ -279,10 +279,10 @@ public class MainWindow : Hdy.Window {
 
                     context.set_source_rgba (background_color.red, background_color.green, background_color.blue, 1);
 
-                    double w = width + MARGIN * 2;
-                    double h = height + MARGIN * 2;
-                    double x = MARGIN;
-                    double y = MARGIN;
+                    double w = width + margin * 2;
+                    double h = height + margin * 2;
+                    double x = margin;
+                    double y = margin;
 
                     double degrees = Math.PI / 180.0;
 
@@ -296,7 +296,7 @@ public class MainWindow : Hdy.Window {
                     context.fill ();
 
                     context.set_operator (Cairo.Operator.OVER);
-                    context.set_source_surface (view_surface, MARGIN * 2, MARGIN * 2);
+                    context.set_source_surface (view_surface, margin * 2, margin * 2);
                     context.paint ();
 
                     var date_time = new GLib.DateTime.now_local ().format ("%Y-%m-%d %H.%M.%S");
