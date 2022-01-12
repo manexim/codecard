@@ -26,8 +26,8 @@ public class Views.CodecardView : Gtk.ScrolledWindow {
     public Gtk.SourceStyleSchemeManager style_scheme_manager;
     public Gtk.SourceView editor;
 
-    private const string STYLE_SCHEME_LIGHT = "solarized-light";
-    private const string STYLE_SCHEME_DARK = "solarized-dark";
+    private const string STYLE_SCHEME_LIGHT = "elementary-light";
+    private const string STYLE_SCHEME_DARK = "elementary-dark";
 
     public string background_color { get; private set; }
     public int editor_margin { get; default = 12; }
@@ -74,6 +74,7 @@ public class Views.CodecardView : Gtk.ScrolledWindow {
 
         if (text_style != null && text_style.background_set && !("rgba" in text_style.background)) {
             background = text_style.background;
+
             background_color = background;
         }
 
