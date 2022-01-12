@@ -45,7 +45,7 @@ public class Application : Gtk.Application {
         settings = Services.Settings.get_default ();
 
         _default_font = new Models.Font () {
-            font = new GLib.Settings ("org.gnome.desktop.interface").get_string ("monosace-font-name")
+            font = new GLib.Settings ("org.gnome.desktop.interface").get_string ("monospace-font-name")
         };
         _current_font = new Models.Font () {
             font = _default_font.font,
