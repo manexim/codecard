@@ -1,24 +1,48 @@
-project('com.manexim.codecard', 'vala', 'c', version: '1.1.0')
+# Project name, programming language and version
+project (
+    'com.manexim.codecard',
+    'c', 'vala',
+    version: '1.1.0'
+)
 
-# Include the translations module
-i18n = import('i18n')
+# Translation module
+i18n = import ('i18n')
 
-# Set our translation domain
-add_global_arguments('-DGETTEXT_PACKAGE="@0@"'.format (meson.project_name()), language:'c')
+# Project arguments
+add_project_arguments (
+    '-DGETTEXT_PACKAGE="@0@"'.format (meson.project_name ()),
+    language: 'c'
+)
 
-gtk_plus_3_dep = dependency('gtk+-3.0')
-granite_dep = dependency('granite')
-gtksourceview_dep = dependency('gtksourceview-4')
-libhandy_dep = dependency('libhandy-1', version: '>=1.0.0')
+config_data = configuration_data ()
+config_data.set('APP_ID', meson.project_name ())
+config_data.set('APP_VERSION', meson.project_version ())
 
+config_file = configure_file (
+    input: 'src/Constants.vala.in',
+    output: '@BASENAME@',
+    configuration: config_data
+)
+
+# Listing dependencies
 dependencies = [
-    gtk_plus_3_dep,
-    granite_dep,
-    gtksourceview_dep,
-    libhandy_dep,
+    dependency ('gtk+-3.0'),
+    dependency ('granite'),
+    dependency('gtksourceview-4'),
+    dependency ('libhandy-1')
 ]
 
-subdir('src')
+subdir ('src')
+
+# Defining executable
+executable (
+    meson.project_name (),
+    sources,
+    config_file,
+    dependencies: dependencies,
+    install: true
+)
+
 subdir('data')
 subdir('po')
 

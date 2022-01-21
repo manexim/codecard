@@ -1,0 +1,83 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the extra package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: extra\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-01-21 19:53+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: data/com.manexim.codecard.desktop.in:4
+#: data/com.manexim.codecard.desktop.in:5
+#: data/com.manexim.codecard.appdata.xml.in:7
+msgid "Codecard"
+msgstr ""
+
+#: data/com.manexim.codecard.desktop.in:6
+#: data/com.manexim.codecard.appdata.xml.in:8
+#: data/com.manexim.codecard.appdata.xml.in:10
+msgid "Share snippets of code as a pretty image, e.g. for social media."
+msgstr ""
+
+#: data/com.manexim.codecard.desktop.in:8
+msgid "com.manexim.codecard"
+msgstr ""
+
+#: data/com.manexim.codecard.appdata.xml.in:21
+#: data/com.manexim.codecard.appdata.xml.in:40
+#: data/com.manexim.codecard.appdata.xml.in:57
+msgid "New:"
+msgstr ""
+
+#: data/com.manexim.codecard.appdata.xml.in:23
+msgid "Use notification instead of toast to notify user"
+msgstr ""
+
+#: data/com.manexim.codecard.appdata.xml.in:24
+msgid "Use monospace font"
+msgstr ""
+
+#: data/com.manexim.codecard.appdata.xml.in:26
+#: data/com.manexim.codecard.appdata.xml.in:43
+#: data/com.manexim.codecard.appdata.xml.in:60
+msgid "Improved:"
+msgstr ""
+
+#: data/com.manexim.codecard.appdata.xml.in:29
+#: data/com.manexim.codecard.appdata.xml.in:46
+#: data/com.manexim.codecard.appdata.xml.in:63
+msgid "Fixed:"
+msgstr ""
+
+#: data/com.manexim.codecard.appdata.xml.in:31
+#: data/com.manexim.codecard.appdata.xml.in:48
+msgid "Add stripe key"
+msgstr ""
+
+#: data/com.manexim.codecard.appdata.xml.in:33
+#: data/com.manexim.codecard.appdata.xml.in:50
+#: data/com.manexim.codecard.appdata.xml.in:67
+msgid "Translations:"
+msgstr ""
+
+#: data/com.manexim.codecard.appdata.xml.in:65
+msgid "Fix for autosave"
+msgstr ""
+
+#: data/com.manexim.codecard.appdata.xml.in:74
+msgid "Initial release"
+msgstr ""
+
+#: data/com.manexim.codecard.appdata.xml.in:96
+msgid "Manexim"
+msgstr ""
