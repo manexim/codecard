@@ -1,7 +1,1 @@
-src/Config/Constants.vala
-src/Controllers/CodecardController.vala
-src/Models/Codecard.vala
-src/Services/Settings.vala
-src/Views/CodecardView.vala
-src/Application.vala
 src/MainWindow.vala
